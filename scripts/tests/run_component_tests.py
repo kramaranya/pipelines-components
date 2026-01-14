@@ -15,7 +15,7 @@ from typing import List, Sequence
 
 import pytest
 
-from ..utils import get_repo_root, normalize_targets
+from ..lib.discovery import get_repo_root, normalize_targets
 
 REPO_ROOT = get_repo_root()
 TIMEOUT_SECONDS = 120
@@ -93,7 +93,7 @@ def _is_member_of_pipeline_or_component(candidate: Path) -> bool:
         relative = candidate.relative_to(REPO_ROOT)
     except ValueError:
         warnings.warn(
-            f"Unable to determine relative path for {candidate} " f"relative to repo root {REPO_ROOT}. Skipping.",
+            f"Unable to determine relative path for {candidate} relative to repo root {REPO_ROOT}. Skipping.",
         )
         return False
 

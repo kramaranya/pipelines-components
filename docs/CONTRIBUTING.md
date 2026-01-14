@@ -143,8 +143,7 @@ Your `metadata.yaml` must include these fields:
 
 ```yaml
 name: my_component
-tier: core  # 'core' or 'third_party'
-stability: stable  # 'alpha', 'beta', or 'stable'
+stability: stable  # 'experimental', 'alpha', 'beta', or 'stable'
 dependencies:
   kubeflow:
     - name: Pipelines
@@ -489,6 +488,12 @@ standard library. Heavy dependencies (like `kfp`, `pandas`, etc.) should be impo
 function/pipeline bodies. Exceptions can be added to
 `.github/scripts/check_imports/import_exceptions.yaml` when justified (e.g., for test files
 importing `pytest`).
+Note: `kfp` is allowlisted at module scope; `kfp_components` is allowlisted at module scope for `pipelines/**`.
+
+**Common error**: `imports non-stdlib module '<module>' at top level`
+
+This often happens in modules under `components/` or `pipelines/`.
+Keep top-level imports to a bare minimum for compilation, and place imports needed at runtime inside pipeline/component bodies.
 
 ### Component Testing Guide
 
@@ -659,6 +664,21 @@ pytest tests/ --cov=. --cov-report=html
 - **Resource considerations**: Local runner tests require adequate system resources for your component's workload
 - **Dependencies**: Mock external services in unit tests; use real dependencies in local runner tests
 - **Cleanup**: Use provided fixtures to ensure proper test environment cleanup
+
+### Package Validation
+
+The validation script ensures the `packages` list in `pyproject.toml` stays in sync with the actual
+Python package structure. It discovers all packages in `components/` and `pipelines/` and compares
+them with the declared packages in `pyproject.toml`.
+
+Run the validation locally:
+
+```bash
+uv run python -m scripts.validate_package_entries.validate_package_entries
+```
+
+If validation fails, update the `packages` list in `pyproject.toml` under `[tool.setuptools]` to
+include any missing packages. The script will report exactly which packages are missing or extra.
 
 ### Building Custom Container Images
 

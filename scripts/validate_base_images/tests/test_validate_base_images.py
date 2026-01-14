@@ -6,26 +6,25 @@ from unittest.mock import patch
 
 import pytest
 
+from ...lib.base_image import extract_base_images, load_base_image_allowlist
+from ...lib.discovery import (
+    build_component_asset,
+    build_pipeline_asset,
+    discover_assets,
+    resolve_component_path,
+    resolve_pipeline_path,
+)
+from ...lib.kfp_compilation import compile_and_get_yaml, load_module_from_path
 from ..validate_base_images import (
     ValidationConfig,
     _collect_violations,
     _print_summary,
     _process_assets,
-    build_component_asset,
-    build_pipeline_asset,
-    compile_and_get_yaml,
-    discover_assets,
-    extract_base_images,
-    find_decorated_functions,
     get_repo_root,
     is_valid_base_image,
-    load_base_image_allowlist,
-    load_module_from_path,
     main,
     parse_args,
     process_asset,
-    resolve_component_path,
-    resolve_pipeline_path,
     set_config,
     validate_base_images,
 )
@@ -230,25 +229,6 @@ class TestDiscoverAssets:
             assets = discover_assets(Path(tmp_dir), "component")
             assert assets == []
 
-    def test_third_party_not_scanned_by_design(self):
-        """Test that third_party/ components are excluded by design."""
-        # Discover from resources/components/ - should NOT include third_party components
-        components_dir = RESOURCES_DIR / "components"
-        assets = discover_assets(components_dir, "component")
-
-        # Verify no third_party components are discovered
-        asset_paths = [str(a["path"]) for a in assets]
-        for path in asset_paths:
-            assert "third_party" not in path, f"third_party component found: {path}"
-
-        # Verify the third_party fixture exists but is in a separate directory
-        third_party_dir = RESOURCES_DIR / "third_party" / "components"
-        if third_party_dir.exists():
-            third_party_assets = discover_assets(third_party_dir, "component")
-            # These exist but would never be scanned by main() since it only
-            # calls discover_assets on repo_root/components, not repo_root/third_party/components
-            assert len(third_party_assets) >= 1, "third_party fixture should exist for this test"
-
 
 class TestLoadModuleFromPath:
     """Tests for load_module_from_path function."""
@@ -273,30 +253,6 @@ class TestLoadModuleFromPath:
         """Test loading a non-existent module raises an exception."""
         with pytest.raises(Exception):
             load_module_from_path("/nonexistent/module.py", "nonexistent")
-
-
-class TestFindDecoratedFunctions:
-    """Tests for find_decorated_functions function."""
-
-    def test_find_component_functions(self):
-        """Test finding @dsl.component decorated functions."""
-        module_path = str(RESOURCES_DIR / "components/training/custom_image_component/component.py")
-        module = load_module_from_path(module_path, "test_find_component")
-
-        functions = find_decorated_functions(module, "component")
-
-        assert len(functions) == 1
-        assert functions[0][0] == "train_model"
-
-    def test_find_pipeline_functions(self):
-        """Test finding @dsl.pipeline decorated functions."""
-        module_path = str(RESOURCES_DIR / "pipelines/training/multi_image_pipeline/pipeline.py")
-        module = load_module_from_path(module_path, "test_find_pipeline")
-
-        functions = find_decorated_functions(module, "pipeline")
-
-        func_names = [f[0] for f in functions]
-        assert "training_pipeline" in func_names
 
 
 class TestCompileAndGetYaml:
@@ -339,6 +295,7 @@ class TestExtractBaseImages:
         with tempfile.TemporaryDirectory() as tmp_dir:
             output_path = f"{tmp_dir}/component.yaml"
             ir_yaml = compile_and_get_yaml(module.train_model, output_path)
+            assert ir_yaml is not None
             images = extract_base_images(ir_yaml)
 
             assert "ghcr.io/kubeflow/ml-training:v1.0.0" in images
@@ -351,6 +308,7 @@ class TestExtractBaseImages:
         with tempfile.TemporaryDirectory() as tmp_dir:
             output_path = f"{tmp_dir}/component.yaml"
             ir_yaml = compile_and_get_yaml(module.load_data, output_path)
+            assert ir_yaml is not None
             images = extract_base_images(ir_yaml)
 
             assert len(images) == 1
@@ -364,6 +322,7 @@ class TestExtractBaseImages:
         with tempfile.TemporaryDirectory() as tmp_dir:
             output_path = f"{tmp_dir}/pipeline.yaml"
             ir_yaml = compile_and_get_yaml(module.training_pipeline, output_path)
+            assert ir_yaml is not None
             images = extract_base_images(ir_yaml)
 
             assert "python:3.11-slim" in images
@@ -823,16 +782,13 @@ class TestMainFunction:
 class TestCompilationFailure:
     """Tests for compilation failure handling."""
 
-    def test_compile_invalid_function(self, capsys):
-        """Test compile_and_get_yaml with invalid function."""
+    def test_compile_invalid_function(self):
+        """Test compile_and_get_yaml raises exception for invalid function."""
 
         def invalid_func():
             """Not a valid KFP component - will fail compilation."""
 
         with tempfile.TemporaryDirectory() as tmp_dir:
             output_path = f"{tmp_dir}/invalid.yaml"
-            result = compile_and_get_yaml(invalid_func, output_path)
-
-            assert result is None
-            captured = capsys.readouterr()
-            assert "Warning: Failed to compile" in captured.out
+            with pytest.raises(Exception):
+                compile_and_get_yaml(invalid_func, output_path)
