@@ -1,4 +1,4 @@
-name: osft_pipeline
+name: sft_minimal_pipeline
 tier: core
 stability: dev preview
 dependencies:
@@ -15,8 +15,9 @@ dependencies:
 tags:
   - training
   - fine_tuning
-  - osft
-  - orthogonal_subspace_fine_tuning
+  - sft
+  - supervised_fine_tuning
+  - minimal
   - pipeline
 lastVerified: 2026-01-14T00:00:00Z
 links:
