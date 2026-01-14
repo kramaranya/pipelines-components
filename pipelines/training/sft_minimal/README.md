@@ -1,15 +1,15 @@
-# Osft Pipeline ✨
+# Sft Minimal Pipeline ✨
 
 ## Overview 🧾
 
-OSFT pipeline placeholder.
+Minimal SFT pipeline placeholder.
 
-A full version of the OSFT pipeline with additional stages.
+A lightweight version of the full SFT pipeline for quick testing.
 To be implemented in a follow-up PR.
 
 ## Metadata 🗂️
 
-- **Name**: osft_pipeline
+- **Name**: sft_minimal_pipeline
 - **Tier**: core
 - **Stability**: dev preview
 - **Dependencies**:
@@ -22,8 +22,9 @@ To be implemented in a follow-up PR.
 - **Tags**:
   - training
   - fine_tuning
-  - osft
-  - orthogonal_subspace_fine_tuning
+  - sft
+  - supervised_fine_tuning
+  - minimal
   - pipeline
 - **Last Verified**: 2026-01-14 00:00:00+00:00
 - **Owners**:
