@@ -14,13 +14,11 @@ import kfp
 import kfp.kubernetes
 from kfp import dsl
 
-# Import reusable training component
-from kfp_components.components.training.finetuning import train_model
-
-# Import pipeline-specific (non-reusable) components
-from pipelines.training.sft.components.dataset_download import dataset_download
-from pipelines.training.sft.components.eval import universal_llm_evaluator
-from pipelines.training.sft.components.model_registry import model_registry
+# Import reusable components
+from components.data_processing.dataset_download import dataset_download
+from components.deployment.model_registry import model_registry
+from components.evaluation.lm_eval import universal_llm_evaluator
+from components.training.finetuning import train_model
 
 # =============================================================================
 # PVC Configuration (COMPILE-TIME settings)
