@@ -1,5 +1,7 @@
 # Kubeflow Model Registry ✨
 
+> ⚠️ **Stability: experimental** — This asset is not yet stable and may change.
+
 ## Overview 🧾
 
 Register model to Kubeflow Model Registry with full provenance tracking.

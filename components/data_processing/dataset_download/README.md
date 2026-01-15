@@ -1,5 +1,7 @@
 # Dataset Download ✨
 
+> ⚠️ **Stability: experimental** — This asset is not yet stable and may change.
+
 ## Overview 🧾
 
 Download and prepare datasets from multiple sources.

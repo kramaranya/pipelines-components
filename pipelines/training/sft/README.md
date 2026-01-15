@@ -1,5 +1,7 @@
 # Sft Pipeline ✨
 
+> ⚠️ **Stability: alpha** — This asset is not yet stable and may change.
+
 ## Overview 🧾
 
 SFT Training Pipeline - Standard supervised fine-tuning with instructlab-training.
@@ -63,7 +65,7 @@ A 4-stage ML pipeline for fine-tuning language models:
 
 - **Name**: sft_pipeline
 - **Tier**: core
-- **Stability**: dev preview
+- **Stability**: alpha
 - **Dependencies**:
   - Kubeflow:
     - Name: Pipelines, Version: >=2.15.2

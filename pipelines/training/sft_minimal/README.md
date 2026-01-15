@@ -1,5 +1,7 @@
 # Sft Minimal Pipeline ✨
 
+> ⚠️ **Stability: alpha** — This asset is not yet stable and may change.
+
 ## Overview 🧾
 
 Minimal SFT pipeline placeholder.
@@ -11,7 +13,7 @@ To be implemented in a follow-up PR.
 
 - **Name**: sft_minimal_pipeline
 - **Tier**: core
-- **Stability**: dev preview
+- **Stability**: alpha
 - **Dependencies**:
   - Kubeflow:
     - Name: Pipelines, Version: >=2.15.2

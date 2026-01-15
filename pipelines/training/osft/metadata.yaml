@@ -1,6 +1,6 @@
 name: osft_pipeline
 tier: core
-stability: dev preview
+stability: alpha
 dependencies:
   kubeflow:
     - name: Pipelines

@@ -1,5 +1,7 @@
 # Osft Minimal Pipeline ✨
 
+> ⚠️ **Stability: alpha** — This asset is not yet stable and may change.
+
 ## Overview 🧾
 
 OSFT Minimal Training Pipeline - Continual learning without catastrophic forgetting.
@@ -39,7 +41,7 @@ A minimal 4-stage ML pipeline for fine-tuning language models with OSFT:
 
 - **Name**: osft_minimal_pipeline
 - **Tier**: core
-- **Stability**: dev preview
+- **Stability**: alpha
 - **Dependencies**:
   - Kubeflow:
     - Name: Pipelines, Version: >=2.15.2

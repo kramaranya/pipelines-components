@@ -1,5 +1,7 @@
 # Lm Eval ✨
 
+> ⚠️ **Stability: experimental** — This asset is not yet stable and may change.
+
 ## Overview 🧾
 
 A Universal LLM Evaluator component using EleutherAI's lm-evaluation-harness.

@@ -1,5 +1,7 @@
 # Finetuning ✨
 
+> ⚠️ **Stability: alpha** — This asset is not yet stable and may change.
+
 ## Overview 🧾
 
 Train model using TrainingHub (OSFT/SFT). Outputs model artifact and metrics.
@@ -58,7 +60,7 @@ Train model using TrainingHub (OSFT/SFT). Outputs model artifact and metrics.
 
 - **Name**: finetuning
 - **Tier**: core
-- **Stability**: dev preview
+- **Stability**: alpha
 - **Dependencies**:
   - Kubeflow:
     - Name: Pipelines, Version: >=2.15.2
