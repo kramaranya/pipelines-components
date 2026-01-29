@@ -1,0 +1,19 @@
+name: merge
+stability: alpha
+dependencies:
+  kubeflow:
+    - name: Pipelines
+      version: ">=2.15.2"
+  external_services:
+    - name: HuggingFace Hub
+      version: ">=0.20.0"
+    - name: MergeKit
+      version: ">=0.0.5"
+tags:
+  - training
+  - model_merging
+  - mergekit
+  - llm
+lastVerified: 2026-01-28T00:00:00Z
+links:
+  documentation: https://github.com/arcee-ai/mergekit
