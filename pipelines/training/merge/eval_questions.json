@@ -1,0 +1,77 @@
+[
+  {
+    "question": "Write a Python function to reverse a string.",
+    "answer": "def reverse_string(s):\n    return s[::-1]",
+    "category": "coding"
+  },
+  {
+    "question": "What is the Python keyword to create a function?",
+    "answer": "def",
+    "category": "coding"
+  },
+  {
+    "question": "In Python, what does the len() function return?",
+    "answer": "length",
+    "category": "coding"
+  },
+  {
+    "question": "What symbol is used for single-line comments in Python?",
+    "answer": "#",
+    "category": "coding"
+  },
+  {
+    "question": "Write a for loop in Python that prints numbers 0 to 4.",
+    "answer": "for i in range(5):\n    print(i)",
+    "category": "coding"
+  },
+  {
+    "question": "What is the capital of France?",
+    "answer": "Paris",
+    "category": "general"
+  },
+  {
+    "question": "Who wrote Romeo and Juliet?",
+    "answer": "Shakespeare",
+    "category": "general"
+  },
+  {
+    "question": "What is the largest planet in our solar system?",
+    "answer": "Jupiter",
+    "category": "general"
+  },
+  {
+    "question": "How many continents are there on Earth?",
+    "answer": "7",
+    "category": "general"
+  },
+  {
+    "question": "What is the chemical symbol for water?",
+    "answer": "H2O",
+    "category": "general"
+  },
+  {
+    "question": "What is 15 + 27?",
+    "answer": "42",
+    "category": "math"
+  },
+  {
+    "question": "What is 12 multiplied by 12?",
+    "answer": "144",
+    "category": "math"
+  },
+  {
+    "question": "If a triangle has three equal sides, what is it called?",
+    "answer": "equilateral",
+    "category": "math"
+  },
+  {
+    "question": "What does HTML stand for?",
+    "answer": "HyperText Markup Language",
+    "category": "tech"
+  },
+  {
+    "question": "What programming language is known for web development and runs in browsers?",
+    "answer": "JavaScript",
+    "category": "tech"
+  }
+]
