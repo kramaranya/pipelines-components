@@ -602,7 +602,7 @@ def merge_pipeline(
     merge_task.set_accelerator_type("nvidia.com/gpu")
     merge_task.set_accelerator_limit(1)
 
-    # Steps 4-7: Evaluation
+    # Steps 4-7: Evaluation (sequential to use only 1 GPU at a time)
     # Evaluate model 1 (uses downloaded artifact from step 1)
     eval_model1_task = evaluate_model(
         model_name="model_1",
@@ -614,6 +614,7 @@ def merge_pipeline(
     kfp.kubernetes.add_node_selector(eval_model1_task, "nvidia.com/gpu.present", "true")
     eval_model1_task.set_accelerator_type("nvidia.com/gpu")
     eval_model1_task.set_accelerator_limit(1)
+    eval_model1_task.after(merge_task)  # Wait for merge to complete
 
     # Evaluate model 2 (uses downloaded artifact from step 2)
     eval_model2_task = evaluate_model(
@@ -626,6 +627,7 @@ def merge_pipeline(
     kfp.kubernetes.add_node_selector(eval_model2_task, "nvidia.com/gpu.present", "true")
     eval_model2_task.set_accelerator_type("nvidia.com/gpu")
     eval_model2_task.set_accelerator_limit(1)
+    eval_model2_task.after(eval_model1_task)  # Wait for eval 1 to complete
 
     # Evaluate merged model (uses merged artifact from step 3)
     eval_merged_task = evaluate_model(
@@ -638,6 +640,7 @@ def merge_pipeline(
     kfp.kubernetes.add_node_selector(eval_merged_task, "nvidia.com/gpu.present", "true")
     eval_merged_task.set_accelerator_type("nvidia.com/gpu")
     eval_merged_task.set_accelerator_limit(1)
+    eval_merged_task.after(eval_model2_task)  # Wait for eval 2 to complete
 
     # Compare all evaluations
     compare_task = compare_evaluations(
