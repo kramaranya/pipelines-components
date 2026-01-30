@@ -13,15 +13,29 @@ from kfp import dsl
 # =============================================================================
 PIPELINE_NAME = "model-merge-pipeline"
 
-# Evaluation questions - kept small for YAML compatibility
-# You can extend this list by editing the component directly
+# Evaluation questions - cycling race table analysis
 EVAL_QUESTIONS_JSON = """[
-  {"question": "What is the Python keyword to create a function?", "answer": "def", "category": "coding"},
-  {"question": "What symbol is used for single-line comments in Python?", "answer": "#", "category": "coding"},
-  {"question": "What is the capital of France?", "answer": "Paris", "category": "general"},
-  {"question": "What is the largest planet in our solar system?", "answer": "Jupiter", "category": "general"},
-  {"question": "What is 15 + 27?", "answer": "42", "category": "math"}
+  {"question": "Which country had the most cyclists finish in the top 10?", "answer": "Italy", "category": "analysis", "context": "cycling_table"},
+  {"question": "Which cyclist earned the most UCI ProTour points?", "answer": "Alejandro Valverde", "category": "analysis", "context": "cycling_table"},
+  {"question": "How many cyclists finished with 's.t.' (same time as the winner)?", "answer": "1", "category": "analysis", "context": "cycling_table"},
+  {"question": "List all Spanish (ESP) cyclists and their ranks.", "answer": "Alejandro Valverde", "category": "analysis", "context": "cycling_table"}
 ]"""
+
+# Test table data
+CYCLING_TABLE = """
+| Rank | Cyclist | Team | Time | UCI ProTour Points |
+|------|---------|------|------|--------------------|
+| 1 | Alejandro Valverde (ESP) | Caisse d'Epargne | 5h 29' 10" | 40 |
+| 2 | Alexandr Kolobnev (RUS) | Team CSC Saxo Bank | s.t. | 30 |
+| 3 | Davide Rebellin (ITA) | Gerolsteiner | s.t. | 25 |
+| 4 | Paolo Bettini (ITA) | Quick Step | s.t. | 20 |
+| 5 | Franco Pellizotti (ITA) | Liquigas | s.t. | 15 |
+| 6 | Denis Menchov (RUS) | Rabobank | s.t. | 11 |
+| 7 | Samuel Sanchez (ESP) | Euskaltel-Euskadi | s.t. | 7 |
+| 8 | Stephane Goubert (FRA) | Ag2r-La Mondiale | + 2" | 5 |
+| 9 | Haimar Zubeldia (ESP) | Euskaltel-Euskadi | + 2" | 3 |
+| 10 | Tadej Valjavec (SLO) | Ag2r-La Mondiale | + 2" | 1 |
+"""
 
 
 @dsl.component(
@@ -208,6 +222,22 @@ def evaluate_model(
         device_map="auto",
     )
 
+    # Cycling table for context
+    cycling_table = """
+| Rank | Cyclist | Team | Time | UCI ProTour Points |
+|------|---------|------|------|--------------------|
+| 1 | Alejandro Valverde (ESP) | Caisse d'Epargne | 5h 29' 10" | 40 |
+| 2 | Alexandr Kolobnev (RUS) | Team CSC Saxo Bank | s.t. | 30 |
+| 3 | Davide Rebellin (ITA) | Gerolsteiner | s.t. | 25 |
+| 4 | Paolo Bettini (ITA) | Quick Step | s.t. | 20 |
+| 5 | Franco Pellizotti (ITA) | Liquigas | s.t. | 15 |
+| 6 | Denis Menchov (RUS) | Rabobank | s.t. | 11 |
+| 7 | Samuel Sanchez (ESP) | Euskaltel-Euskadi | s.t. | 7 |
+| 8 | Stephane Goubert (FRA) | Ag2r-La Mondiale | + 2" | 5 |
+| 9 | Haimar Zubeldia (ESP) | Euskaltel-Euskadi | + 2" | 3 |
+| 10 | Tadej Valjavec (SLO) | Ag2r-La Mondiale | + 2" | 1 |
+"""
+
     # Run evaluation
     correct = 0
     results = []
@@ -216,25 +246,49 @@ def evaluate_model(
         question = qa["question"]
         expected = qa["answer"]
 
-        # Format as simple Q&A prompt (adjust for your models if needed)
-        prompt = f"Question: {question}\nAnswer:"
+        # Format prompt with table context and request JSON output
+        prompt = f"""# Task Description
+Please look at the table and answer the question.
+
+CRITICAL FORMATTING RULES:
+- Return ONLY valid JSON: {{"answer": "<YOUR ANSWER>"}}
+- Do NOT use markdown code blocks (no ```)
+- Do NOT include any explanation or reasoning
+- Start your response with {{ and end with }}
+
+## Table:
+{cycling_table}
+
+## Question:
+{question}
+
+## Output (raw JSON, no markdown):"""
 
         inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
 
         with torch.no_grad():
             outputs = model.generate(
                 **inputs,
-                max_new_tokens=50,
-                temperature=0.1,
-                do_sample=False,
+                max_new_tokens=256,
+                temperature=0.3,
+                do_sample=True,
             )
 
         generated = tokenizer.decode(outputs[0], skip_special_tokens=True)
         # Extract just the answer part (after the prompt)
         answer = generated[len(prompt):].strip()
 
-        # Exact match evaluation (case-insensitive)
-        is_correct = expected.lower() in answer.lower()
+        # Check if output is valid JSON and extract answer
+        is_correct = False
+        try:
+            # Try to parse as JSON
+            parsed = json.loads(answer)
+            if "answer" in parsed:
+                extracted_answer = str(parsed["answer"])
+                is_correct = expected.lower() in extracted_answer.lower()
+        except:
+            # Fallback: check if expected answer appears in response
+            is_correct = expected.lower() in answer.lower()
 
         if is_correct:
             correct += 1
@@ -244,6 +298,7 @@ def evaluate_model(
             "expected": expected,
             "generated": answer,
             "correct": is_correct,
+            "category": qa.get("category", "general"),
         })
 
         log.info(f"Q{i+1}: {'[PASS]' if is_correct else '[FAIL]'} | Expected: {expected} | Got: {answer[:100]}")
